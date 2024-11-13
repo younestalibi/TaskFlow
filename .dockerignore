@@ -1,0 +1,30 @@
+# General ignores for both backend and frontend
+**/node_modules
+**/vendor
+**/.env
+**/.env.*
+**/.DS_Store
+**/*.swp
+**/.idea
+**/.vscode
+**/.git
+**/.gitignore
+
+# Docker-related files (optional)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Backend-specific ignores
+backend/storage/app/*.log
+backend/storage/framework/cache
+backend/storage/framework/sessions
+backend/storage/framework/testing
+backend/storage/framework/views
+backend/storage/logs
+
+# Frontend-specific ignores
+frontend/build
+frontend/dist
+frontend/.next
+frontend/.cache
