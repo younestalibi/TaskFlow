@@ -6,17 +6,23 @@
   "scripts": {
     "build": "remix vite:build",
     "dev": "remix vite:dev --host=0.0.0.0 --port=3000",
+    "dev-local": "remix vite:dev --port=3000",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@mantine/core": "^7.14.0",
+    "@mantine/hooks": "^7.14.0",
     "@remix-run/node": "^2.14.0",
     "@remix-run/react": "^2.14.0",
     "@remix-run/serve": "^2.14.0",
+    "axios": "^1.7.7",
     "isbot": "^4.1.0",
+    "mantine-form-yup-resolver": "^2.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.14.0",
