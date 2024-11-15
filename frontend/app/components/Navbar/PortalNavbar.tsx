@@ -1,4 +1,5 @@
 import {
+    IconChecklist,
     IconLayoutDashboard,
     IconUserCircle,
 } from '@tabler/icons-react';
@@ -8,7 +9,7 @@ import { NavLink } from '@remix-run/react';
 const menuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: IconLayoutDashboard },
     { path: '/dashboard/profile', label: 'Profile', icon: IconUserCircle },
-    { path: '/dashboard/test', label: 'Profile', icon: IconUserCircle },
+    { path: '/dashboard/task-manager', label: 'Task Manager', icon: IconChecklist },
 ] as const;
 
 export function PortalNavbar() {

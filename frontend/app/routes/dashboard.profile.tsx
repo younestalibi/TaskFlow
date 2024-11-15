@@ -31,9 +31,6 @@ export const action = async ({ request }) => {
 export default function Profile() {
     const { user } = useOutletContext();
     const response = useActionData()
-    // const errors = results?.errors?.errors?.error;
-    // const type = results?.type;
-    console.log(response)
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting"
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);

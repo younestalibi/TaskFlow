@@ -28,7 +28,6 @@ export const links: LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const navigation = useNavigation();
-
   return (
     <html lang="en">
       <head>
