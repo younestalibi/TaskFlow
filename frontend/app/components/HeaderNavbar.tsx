@@ -11,7 +11,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import classes from '../styles/HeaderMegaMenu.module.css';
 import { Link } from '@remix-run/react';
-import { MantineLogo } from '@mantinex/mantine-logo';
+import { AppLogo } from './AppLogo';
 
 
 
@@ -22,26 +22,19 @@ export function Navbar({ user }) {
         <Box pb={100} pt={10}>
             <header className={classes.header}>
                 <Group justify="space-between" h="100%">
-                    <MantineLogo size={30} />
+                    <AppLogo width={150} />
                     <Group h="100%" gap={0} visibleFrom="sm">
                         <Link to="/" className={classes.link}>
                             Home
                         </Link>
-
                         <Link to="/" className={classes.link}>
-                            Learn
-                        </Link>
-                        <Link to="/" className={classes.link}>
-                            Academy
+                            About us
                         </Link>
                     </Group>
 
                     {user ? (
                         <>
-
-
                             <Group visibleFrom="sm">
-                                
                                 <b className="ml-4 text-sm text-gray-700">
                                     {user.name}
                                 </b>
@@ -59,7 +52,6 @@ export function Navbar({ user }) {
                             <Link to={'/register'}> <Button>Sign up</Button></Link>
                         </Group>
                     )}
-
 
                     <Burger opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
                 </Group>
@@ -85,10 +77,27 @@ export function Navbar({ user }) {
 
                     <Divider my="sm" />
 
-                    <Group justify="center" grow pb="xl" px="md">
-                        <Button variant="default">Log in</Button>
-                        <Button>Sign up</Button>
-                    </Group>
+                    {user ? (
+                        <>
+                            <Group >
+                                <b className="ml-4 text-sm text-gray-700">
+                                    {user.name}
+                                </b>
+                                <Link
+                                    to="/dashboard"
+                                    className="ml-4 text-sm text-gray-700 underline"
+                                >
+                                    <Button>Dashboard</Button>
+                                </Link>
+                            </Group>
+                        </>
+                    ) : (
+                        <Group justify="center" grow pb="xl" px="md">
+                            <Link to={'/login'}><Button variant="default">Log in</Button></Link>
+                            <Link to={'/register'}> <Button>Sign up</Button></Link>
+                        </Group>
+
+                    )}
                 </ScrollArea>
             </Drawer>
         </Box>

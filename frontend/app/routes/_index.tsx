@@ -1,4 +1,5 @@
 import { useLoaderData } from "@remix-run/react";
+import { Navbar } from "~/components/HeaderNavbar";
 import { getUser } from "~/services/auth.server";
 
 export async function loader({ request }) {
@@ -7,10 +8,10 @@ export async function loader({ request }) {
 }
 export default function Index() {
   const user = useLoaderData();
-  console.log(user)
   return (
     <>
-      <div>hello wrold</div>
+      <Navbar user={user} />
+      <div>Welcome page</div>
     </>
   );
 }

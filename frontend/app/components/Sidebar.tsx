@@ -1,22 +1,63 @@
-import { Link, Outlet, useLoaderData } from "@remix-run/react";
-import { getUser, requireAuth } from "~/services/auth.server";
+
 import { useDisclosure } from '@mantine/hooks';
 import { ActionIcon, AppShell, Box, Button, Container, Group } from '@mantine/core';
-import { AppLogo } from "~/components/AppLogo";
-import { PortalNavbar } from "~/components/Navbar/PortalNavbar";
-import { IconCaretLeft, IconCaretRight } from "@tabler/icons-react";
+import { Link, Outlet } from '@remix-run/react';
+import { AppLogo } from './AppLogo';
+// import { RecruitHubLogo } from '../components/shared/logo/logo';
+// import { IconCaretLeft, IconCaretRight } from '@tabler/icons-react';
+// import { queryOptions, useQuery, useSuspenseQuery } from '@tanstack/react-query';
+// import { axiosInstance } from '../utils';
+// import { useAuthStore } from '../store';
+// import { useEffect } from 'react';
+// import UserToolbar from '../components/shared/user-toolbar';
+// import { queryClient } from '../App';
+// import { useRouterState } from '@tanstack/react-router';
 
+// export const useCurrentUser = () => {
+//     const { setUser, logout, isLoggedIn, user } = useAuthStore();
+//     const navigate = useNavigate();
+//     const state = useRouterState();
+//     const userQuery = useSuspenseQuery(currentUserQueryOptions);
 
-export const loader = async ({ request }) => {
-    await requireAuth({ request });
-    const user = await getUser({ request })
-    return user
-};
+//     useEffect(() => {
+//         if (!userQuery.isFetching) {
+//             if (userQuery.isFetched && userQuery.data) {
+//                 setUser(userQuery.data);
+//             } else if (state.location.pathname === '/portal') {
+//                 navigate({
+//                     to: '/login'
+//                 });
+//             }
+//         }
+//     }, []);
 
-export default function Dashboard() {
-    const user = useLoaderData();
+//     return {
+//         isLoggedIn,
+//         user,
+//         logout,
+//         userQuery
+//     };
+// };
+
+// const fetchUser = async () => {
+//     try {
+//         const response = await axiosInstance.get('/user');
+//         if (response.status === 401) {
+//             return null;
+//         }
+//         return response.data;
+//     } catch (error) {
+//         return null;
+//     }
+// };
+
+// export const currentUserQueryOptions = queryOptions({
+//     queryKey: ['authenticated-user'],
+//     queryFn: fetchUser
+// });
+
+export function PortalLayout({ user }) {
     const [opened, { toggle }] = useDisclosure();
-
     return (
         <AppShell
             header={{ height: 60 }}
@@ -63,25 +104,28 @@ export default function Dashboard() {
                             root: {
                                 position: 'absolute',
                                 top: '50%',
-                                right: '-15px'
+                                right: opened ? '-15px' : '-20px'
                             }
                         }}
                     >
                         {opened ? (
-                            <IconCaretRight style={{ width: '70%', height: '70%' }} stroke={1.5} />
+                            <b>open</b>
+                            // <IconCaretLeft style={{ width: '70%', height: '70%' }} stroke={1.5} />
                         ) : (
-                            <IconCaretLeft style={{ width: '70%', height: '70%' }} stroke={1.5} />
+                            <b>closed</b>
+                            // <IconCaretRight style={{ width: '70%', height: '70%' }} stroke={1.5} />
                         )}
                     </ActionIcon>
-                    <PortalNavbar />
-
+                    {/* <PortalNavbar /> */}
+                    portal
                 </Box>
             </AppShell.Navbar>
             <AppShell.Main>
                 <Container size='lg'>
-                    <Outlet context={{ user }} />
+                    <Outlet />
                 </Container>
             </AppShell.Main>
         </AppShell>
     );
 }
+

@@ -50,7 +50,7 @@ export default function Profile() {
     };
 
     return (
-        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+        <>
             <Card shadow="sm" padding="lg" mb="lg">
                 <Title order={2} mb="md">Profile Information</Title>
                 {generalError && (
@@ -67,6 +67,7 @@ export default function Profile() {
                         name="name"
                         defaultValue={user?.name}
                         mb="sm"
+
                     />
                     <TextInput
                         error={emailError}
@@ -152,6 +153,6 @@ export default function Profile() {
                     </Group>
                 </Form>
             </Modal>
-        </div>
+        </>
     );
 }

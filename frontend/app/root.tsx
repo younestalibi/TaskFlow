@@ -7,13 +7,11 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
+  useNavigation,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
 
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
-import { Navbar } from './components/HeaderNavbar';
-import { getUser } from './services/auth.server';
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -27,13 +25,9 @@ export const links: LinksFunction = () => [
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
 ];
-export async function loader({ request }) {
-  const user = await getUser({ request })
-  return user
-}
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const user = useLoaderData();
+  const navigation = useNavigation();
 
   return (
     <html lang="en">
@@ -46,9 +40,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       </head>
       <body>
-        <MantineProvider>
-          <Navbar user={user} />
-          {children}</MantineProvider>
+        <div id="detail" className={navigation.state === "loading" ? "loading" : ""}>
+          <MantineProvider >{children}</MantineProvider>
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>
