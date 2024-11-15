@@ -21,7 +21,6 @@ export async function getTaskLists({ request }) {
 
 export async function createTaskList({ request, title, description }) {
     const token = await currentToken({ request });
-
     try {
         const response = await client.post(
             "/tasklists",
@@ -32,12 +31,49 @@ export async function createTaskList({ request, title, description }) {
                 },
             }
         );
-        return { errors: {}, response }
+        return { errors: {}, data: response }
     } catch (err) {
         const { error, status } = err
         if (status == 422 && error instanceof ErrorValidation) {
-            return { errors: error.getErrors() }
+            return { errors: error.getErrors(), data: null }
         }
-        return { errors: { message: "Something went wrong try again later!" } }
+        return { errors: { message: "Something went wrong try again later!" }, data: null }
+    }
+}
+export async function updateTaskList({ request, taskListId, title, description }) {
+    const token = await currentToken({ request });
+    try {
+        const response = await client.put(
+            `/tasklists/${taskListId}`,
+            { title, description },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        return { errors: {}, data: response }
+    } catch (err) {
+        const { error, status } = err
+        if (status == 422 && error instanceof ErrorValidation) {
+            return { errors: error.getErrors(), data: null }
+        }
+        return { errors: { message: "Something went wrong try again later!" }, data: null }
+    }
+}
+export async function deleteTaskList({ request, taskListId }) {
+    const token = await currentToken({ request });
+    try {
+        const response = await client.delete(
+            `/tasklists/${taskListId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        return { errors: {}, data: response }
+    } catch (err) {
+        return { errors: { message: "Something went wrong try again later!", data: null } }
     }
 }

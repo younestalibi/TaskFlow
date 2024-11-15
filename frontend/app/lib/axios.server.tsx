@@ -15,9 +15,9 @@ client.interceptors.response.use(
     },
     (error: AxiosError) => {
         const { response } = error;
-        // console.log('==============')
-        // console.log(response?.data)
-        // console.log('==============')
+        console.log('==============')
+        console.log(response?.data)
+        console.log('==============')
 
         if (!response) {
             console.error("Network error or server unreachable");

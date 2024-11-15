@@ -3,9 +3,14 @@ import classes from './TaskListCard.module.css';
 import { formatDateToReadable } from '~/lib/format-date';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
-export default function TaskListCard({ taskList }) {
-    
+export default function TaskListCard({ taskList, onDelete, onEdit }) {
 
+    const handleDelete = () => {
+        onDelete(taskList.id);
+    };
+    const handleEdit = () => {
+        onEdit(taskList.id);
+    };
     return (
         <Card withBorder padding="lg" className={classes.card}>
             <Card.Section>
@@ -30,8 +35,8 @@ export default function TaskListCard({ taskList }) {
                 {taskList?.description}
             </Text>
             <Card.Section className={classes.footer}>
-                <IconTrash color='red' />
-                <IconEdit color='blue' />
+                <IconTrash color='red' onClick={handleDelete} className='hover:cursor-pointer' />
+                <IconEdit color='blue' onClick={handleEdit} className='hover:cursor-pointer' />
             </Card.Section>
         </Card>
     );
