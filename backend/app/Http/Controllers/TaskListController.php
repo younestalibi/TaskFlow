@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TaskList;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class TaskListController extends Controller
 {
@@ -12,15 +13,9 @@ class TaskListController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $user = JWTAuth::parseToken()->authenticate();
+        $taskLists = $user->taskLists;
+        return response()->json($taskLists);
     }
 
     /**
@@ -28,38 +23,54 @@ class TaskListController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+        $user = JWTAuth::parseToken()->authenticate();
+        $taskList = TaskList::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'user_id' => $user->id,
+        ]);
+
+        return response()->json($taskList, 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(TaskList $taskList)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(TaskList $taskList)
-    {
-        //
+        $taskList = TaskList::findOrFail($id);
+        return response()->json($taskList);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TaskList $taskList)
+    public function update(Request $request,  $id)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+        $taskList = TaskList::findOrFail($id);
+        $taskList->update([
+            'title' => $request->title,
+            'description' => $request->description,
+        ]);
+
+        return response()->json($taskList);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TaskList $taskList)
+    public function destroy($id)
     {
-        //
+        $taskList = TaskList::findOrFail($id);
+        $taskList->delete();
+        return response()->json(['message' => 'Task list deleted successfully']);
     }
 }

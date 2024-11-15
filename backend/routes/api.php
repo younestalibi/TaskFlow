@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskListController;
 use App\Http\Middleware\JwtMiddleware;
 
 
@@ -17,6 +19,11 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::put('profile/update', [ProfileController::class, 'updateProfile']);
     Route::put('profile/update-password', [ProfileController::class, 'updatePassword']);
     Route::delete('profile/delete', [ProfileController::class, 'deleteAccount']);
+    // TaskList-related routes
+    Route::resource('tasklists', TaskListController::class);
+    Route::resource('tasks', TaskController::class);
+
+
 });
 
 

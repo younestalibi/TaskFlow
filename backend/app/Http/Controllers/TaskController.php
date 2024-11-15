@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class TaskController extends Controller
 {
@@ -12,15 +13,9 @@ class TaskController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $user = JWTAuth::parseToken()->authenticate();
+        $taskLists = $user->taskLists()->with('tasks')->get(); 
+        return response()->json($taskLists);
     }
 
     /**
@@ -28,7 +23,19 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'task_list_id' => 'required|exists:task_lists,id', 
+        ]);
+
+        $task = Task::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'task_list_id' => $request->task_list_id,
+        ]);
+
+        return response()->json($task, 201);
     }
 
     /**
@@ -36,23 +43,28 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        //
+        return response()->json($task); 
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Task $task)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Task $task)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|in:incomplete,completed',
+        ]);
+
+        $task->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'status' => $request->status,
+        ]);
+
+        return response()->json($task); 
     }
 
     /**
@@ -60,6 +72,7 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
-        //
+        $task->delete();
+        return response()->json(['message' => 'Task deleted successfully']);
     }
 }
