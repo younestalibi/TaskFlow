@@ -1,5 +1,4 @@
 import { useLoaderData } from "@remix-run/react";
-import LoginLinks from "~/components/LoginLinks";
 import { getUser } from "~/services/auth.server";
 
 export async function loader({ request }) {

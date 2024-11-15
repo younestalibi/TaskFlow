@@ -41,6 +41,7 @@ export function Navbar({ user }) {
 
 
                             <Group visibleFrom="sm">
+                                
                                 <b className="ml-4 text-sm text-gray-700">
                                     {user.name}
                                 </b>

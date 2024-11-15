@@ -12,7 +12,7 @@ import {
 import type { LinksFunction } from "@remix-run/node";
 
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
-import { Navbar } from './components/Navbar';
+import { Navbar } from './components/HeaderNavbar';
 import { getUser } from './services/auth.server';
 
 export const links: LinksFunction = () => [
@@ -48,7 +48,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <MantineProvider>
           <Navbar user={user} />
-
           {children}</MantineProvider>
         <ScrollRestoration />
         <Scripts />

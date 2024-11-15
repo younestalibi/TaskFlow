@@ -1,7 +1,8 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import client from "../lib/axios.server";
+import ErrorValidation from "~/lib/custom-error";
 
-const storage = createCookieSessionStorage({
+export const storage = createCookieSessionStorage({
     cookie: {
         name: "ergodnc_session",
         secure: process.env.NODE_ENV === "production", // make sure to set this correctly in production
@@ -18,9 +19,13 @@ export async function register({ request, name, email, password, password_confir
     let response;
     try {
         response = await client.post("/register", { name, email, password, password_confirmation });
-        session.set("userToken", response?.data.token);
-    } catch (error) {
-        return { errors: Object.values(error?.data?.error).flat() }
+        session.set("userToken", response?.token);
+    } catch (err) {
+        const { error, status } = err
+        if (status == 422 && error instanceof ErrorValidation) {
+            return { errors: error.getErrors() }
+        }
+        return { errors: { message: "Something went wrong try again later!" } }
     }
 
 
@@ -34,22 +39,29 @@ export async function register({ request, name, email, password, password_confir
 }
 export async function login({ request, email, password }) {
     const session = await storage.getSession(request.headers.get('Cookie'));
-    let response;
     try {
-        response = await client.post("/login", { email, password });
-        session.set("userToken", response?.data.token);
-    } catch (error) {
-        return { errors: Object.values(error?.data?.error).flat() }
+        const response = await client.post("/login", { email, password });
+        session.set("userToken", response?.token);
+        return {
+            redirector: redirect("/", {
+                headers: {
+                    "Set-Cookie": await storage.commitSession(session),
+                },
+            })
+        };
+    } catch (err) {
+        const { error, status } = err
+        if (status == 422 && error instanceof ErrorValidation) {
+            return { errors: error.getErrors() }
+        } else if (status == 401) {
+            return {
+                errors: {
+                    message: error
+                }
+            }
+        }
+        return { errors: { message: "Something went wrong try again later!" } }
     }
-
-
-    return {
-        redirector: redirect("/", {
-            headers: {
-                "Set-Cookie": await storage.commitSession(session),
-            },
-        })
-    };
 }
 
 export async function logout({ request }) {
@@ -89,7 +101,7 @@ export async function getUser({ request }) {
             return null;
         }
 
-        return response.data.user;
+        return response?.user;
     }
 
     return null;

@@ -1,5 +1,4 @@
-import { Form, Link, useActionData } from "@remix-run/react";
-import LabelErrors from "~/components/Errors";
+import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
 import { login, requireGuest } from "~/services/auth.server";
 import {
     TextInput,
@@ -12,9 +11,9 @@ import {
     Container,
     Group,
     Button,
+    Alert,
 } from '@mantine/core';
 import classes from '../styles/AuthenticationTitle.module.css';
-import { useTransition } from "react";
 
 export const loader = async ({ request }) => {
     await requireGuest({ request });
@@ -28,18 +27,20 @@ export const action = async ({ request }) => {
     const email = formData.get("email");
     const password = formData.get("password");
 
-    const { errors, redirector } = await login({ request, email, password });
+    const { errors, redirector, message } = await login({ request, email, password });
 
-    return errors || redirector;
+    return errors || redirector || message;
 };
 
 
 export default function LoginPage() {
-    const errors = useActionData();
-    const transition = useTransition();
-    const isSubmitting = transition.state === 'submitting';
-    console.log(errors)
+    const response = useActionData();
+    const navigation = useNavigation();
+    const isSubmitting = navigation.state === "submitting"
 
+    const generalError = response?.message || null;
+    const emailError = response?.email || null;
+    const passwordError = response?.password || null;
     return (
         <>
             <Container size={420} my={40}>
@@ -56,12 +57,20 @@ export default function LoginPage() {
                     </Link>
                 </Text>
 
-                <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-                    <LabelErrors className="mb-5" errors={errors || []} />
 
+                <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+                    {generalError && (
+                        <Alert color="red" mb="sm">
+                            <div className="text-red-500">{generalError}</div>
+                        </Alert>
+                    )}
                     <Form method="POST">
-                        <TextInput name="email" label="Email" placeholder="you@mantine.dev" required />
-                        <PasswordInput name="password" label="Password" placeholder="Your password" required mt="md" />
+                        <TextInput
+                            error={emailError}
+                            name="email" label="Email" placeholder="you@mantine.dev" />
+                        <PasswordInput
+                            error={passwordError}
+                            name="password" label="Password" placeholder="Your password" mt="md" />
                         <Group justify="space-between" mt="lg">
                             <Checkbox label="Remember me" />
                             <Link to={'/forgotpassword'}>

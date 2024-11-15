@@ -1,4 +1,5 @@
 import Axios, { AxiosError, AxiosResponse } from 'axios';
+import ErrorValidation from './custom-error';
 
 const client = Axios.create({
     baseURL: "http://localhost:8000/api",
@@ -10,20 +11,45 @@ const client = Axios.create({
 
 client.interceptors.response.use(
     (response: AxiosResponse) => {
-        return response
+        return response?.data
     },
     (error: AxiosError) => {
-        console.log(error.response);
-        if (!error.response) {
-            return Promise.reject(error);
+        const { response } = error;
+        console.log('==============')
+        console.log(response)
+        console.log('==============')
+
+        if (!response) {
+            console.error("Network error or server unreachable");
+            return Promise.reject("Network error");
         }
 
-        if (error.response.status === 401) {
-
-            return Promise.reject(error.response);
+        switch (response.status) {
+            case 422: {
+                const customError = new ErrorValidation();
+                customError.setErrors(response)
+                return Promise.reject({
+                    status: 422,
+                    error: customError,
+                });
+            }
+            case 401:
+                return Promise.reject({
+                    status: 401,
+                    error: response?.data?.error || "Unauthorized, please log in again"
+                })
+            case 400:
+                return Promise.reject({
+                    status: 400,
+                    error: response?.data?.error || "something is wrong!"
+                })
+            // case 404:
+            //     return Promise.reject("Page not found");
+            // case 500:
+            //     return Promise.reject("Server error, please try again later");
+            default:
+                return Promise.reject(error);
         }
-
-        return Promise.reject(error.response);
     }
 );
 
