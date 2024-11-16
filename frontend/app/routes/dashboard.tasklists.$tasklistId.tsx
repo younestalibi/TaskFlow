@@ -1,9 +1,10 @@
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { useEffect, useState } from "react";
-import { Card } from "@mantine/core";
-import { useActionData, useFetcher, useLoaderData } from "@remix-run/react";
+import { Badge, Button, Card, Group, Input, Modal, Space, Text, Textarea, TextInput, Title } from "@mantine/core";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import { getTaskListById } from "~/services/taskList.server";
-import { updateTaskStatus } from "~/services/task.server";
+import { createTask, deleteTaskById, updateTaskById, updateTaskStatus } from "~/services/task.server";
+import { useDisclosure } from "@mantine/hooks";
 
 export const loader = async ({ params, request }) => {
     const taskListId = params.tasklistId;
@@ -12,40 +13,67 @@ export const loader = async ({ params, request }) => {
 };
 export const action = async ({ request }) => {
     const formData = await request.formData();
-    const method = request.method;
-    if (method === "PUT") {
+    const type = formData.get('type');
+    if (type === "update_task_status") {
         const taskId = formData.get('taskId');
         const status = formData.get('status');
         const response = await updateTaskStatus({ request, taskId, status })
         return response
+    } else if (type === "delete_task") {
+        const taskId = formData.get('taskId');
+        const response = await deleteTaskById({ request, taskId })
+        return response;
+    } else if (type === "create_task") {
+        const task_list_id = formData.get('task_list_id');
+        const title = formData.get('title');
+        const description = formData.get('description');
+        const response = await createTask({ request, task_list_id, title, description })
+        return response;
+    } else if (type === "edit_task") {
+        const taskId = formData.get('taskId');
+        const title = formData.get('title');
+        const description = formData.get('description');
+        const response = await updateTaskById({ request, taskId, title, description })
+        return response;
     }
     return null
 };
 
+// Main Component
 const DragDrop = () => {
-    const fetcher = useFetcher()
-    const response = useLoaderData()
-    const dd = useActionData()
-    console.log(dd)
-    console.log(fetcher?.data)
-    const taskList = response?.data
-    const errors = response?.error
-    console.log(taskList)
+    const fetcher = useFetcher();
+    const response = useLoaderData();
 
-    const [tasks, setTasks] = useState({
-        todo: [],
-        doing: [],
-        done: [],
-    });
+    // Modal states
+    const [createOpened, { open: openCreate, close: closeCreate }] = useDisclosure(false);
+    const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false);
+    const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure(false);
 
-    const onDragEnd = async (result) => {
-        const { source, destination } = result;
-        if (!destination) return;
+    // Task management states
+    const [deleteId, setDeleteId] = useState(0);
+    const [selectedTask, setSelectedTask] = useState(null);
+    const [tasks, setTasks] = useState({ todo: [], doing: [], done: [] });
 
-        if (
-            source.droppableId === destination.droppableId &&
-            source.index === destination.index
-        ) {
+    const isSubmitting = fetcher.state === "submitting";
+    const titleError = fetcher?.data?.errors?.title || null;
+    const descriptionError = fetcher?.data?.errors?.description || null;
+
+    const taskList = response?.data;
+
+    // Load tasks into appropriate columns
+    useEffect(() => {
+        if (taskList?.tasks) {
+            setTasks({
+                todo: taskList.tasks.filter((task) => task.status === "todo"),
+                doing: taskList.tasks.filter((task) => task.status === "doing"),
+                done: taskList.tasks.filter((task) => task.status === "done"),
+            });
+        }
+    }, [taskList]);
+
+    // Handle drag and drop logic
+    const onDragEnd = ({ source, destination }) => {
+        if (!destination || (source.droppableId === destination.droppableId && source.index === destination.index)) {
             return;
         }
 
@@ -68,125 +96,81 @@ const DragDrop = () => {
         setTasks(updatedTasks);
 
         fetcher.submit(
-            { taskId: movedTask.id, status: destination.droppableId },
-            { method: 'PUT' }
+            { taskId: movedTask.id, status: destination.droppableId, type: "update_task_status" },
+            { method: "PUT" }
         );
     };
 
+    // Task modals handlers
+    const handleDeleteTask = (taskId) => {
+        setDeleteId(taskId);
+        openDelete();
+    };
+
+    const handleEditTask = (task) => {
+        setSelectedTask(task);
+        openEdit();
+    };
 
     useEffect(() => {
-        if (taskList?.tasks) {
-            const initialTasks = {
-                todo: taskList.tasks.filter((task) => task.status === "todo"),
-                doing: taskList.tasks.filter((task) => task.status === "doing"),
-                done: taskList.tasks.filter((task) => task.status === "done"),
-            };
-            setTasks(initialTasks);
+        if (fetcher?.data?.data) {
+            if (deleteOpened) closeDelete();
+            if (editOpened) closeEdit();
+            if (createOpened) closeCreate();
         }
-    }, [taskList]);
-
+    }, [fetcher?.data, closeDelete, closeEdit, closeCreate]);
 
     return (
         <>
+            <Group justify="space-between" align="center">
+                <Title order={1} tt="capitalize">{taskList?.title}</Title>
+                <Button onClick={openCreate}>Add New Task</Button>
+            </Group>
+
+            <Space h="md" />
+
             <DragDropContext onDragEnd={onDragEnd}>
                 <div className="flex flex-col lg:flex-row lg:space-x-4">
                     {["todo", "doing", "done"].map((column) => (
                         <Droppable key={column} droppableId={column}>
                             {(provided) => (
                                 <div
-                                    className="w-full lg:w-1/3 p-4 mb-4 lg:mb-0 bg-gray-100 rounded"
                                     ref={provided.innerRef}
                                     {...provided.droppableProps}
+                                    className="w-full lg:w-1/3 p-4 bg-gray-100 rounded"
                                 >
-                                    <h2 className="text-xl font-bold capitalize">
-                                        {column}
-                                    </h2>
-                                    {tasks[column].map((task, index) => (
-                                        (<Draggable
-                                            key={task.id.toString()}
-                                            draggableId={task.id.toString()}
-                                            index={index}
-                                        >
+                                    <Title order={3} tt="capitalize">{column}</Title>
+                                    <Space h="sm" />
+
+                                    {tasks[column]?.map((task, index) => (
+                                        <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
                                             {(provided) => (
                                                 <Card
-                                                    className="mb-4"
                                                     ref={provided.innerRef}
                                                     {...provided.draggableProps}
                                                     {...provided.dragHandleProps}
-                                                // actions={[
-                                                //     <span className="justify-center flex gap-2 items-center">
-                                                //         <Tooltip
-                                                //             title={
-                                                //                 task
-                                                //                     ?.technician
-                                                //                     ?.name
-                                                //             }
-                                                //             placement="top"
-                                                //         >
-                                                //             <span>
-                                                //                 <CustomAvatar
-                                                //                     user={
-                                                //                         task?.technician
-                                                //                     }
-                                                //                 />
-                                                //             </span>
-                                                //         </Tooltip>
-                                                //     </span>,
-                                                //     <span
-                                                //         onClick={() => {
-                                                //             setViewedRow(
-                                                //                 project
-                                                //             );
-                                                //         }}
-                                                //     >
-                                                //         {task?.attachment ?
-                                                //             <a
-                                                //                 href={constructServerURL(task?.attachment)}
-                                                //             >
-                                                //                 Attachment
-                                                //             </a> :
-                                                //             <span>No attachment</span>
-                                                //         }
-                                                //     </span>,
-                                                //     <button
-                                                //         disabled={
-                                                //             !!loadingTasks[
-                                                //             task.id
-                                                //             ]
-                                                //         }
-                                                //         onClick={() =>
-                                                //             deleteTask(
-                                                //                 task
-                                                //             )
-                                                //         }
-                                                //     >
-                                                //         {!!loadingTasks[
-                                                //             task.id
-                                                //         ]
-                                                //             ? "Deleting..."
-                                                //             : "Delete"}
-                                                //     </button>,
-                                                //     <span
-                                                //         onClick={() =>
-                                                //             setTask(task)
-                                                //         }
-                                                //     >
-                                                //         Note
-                                                //     </span>,
-                                                // ]}
+                                                    className="mb-4"
+                                                    shadow="sm"
+                                                    padding="lg"
+                                                    radius="md"
+                                                    withBorder
                                                 >
-                                                    {/* <Spin
-                                                            spinning={
-                                                                !!loadingTasks[
-                                                                task.id
-                                                                ]
-                                                            }
-                                                        > */}
-                                                    <b>{task?.title}</b>
-                                                    {/* </Spin> */}
+                                                    <Group justify="space-between" mb="xs">
+                                                        <Text fw={500}>{task.title}</Text>
+                                                        <Badge color="blue">Priority</Badge>
+                                                    </Group>
+                                                    <Text size="sm" color="dimmed">{task.description}</Text>
+                                                    <Group mt="md">
+                                                        <Button size="xs" variant="light" onClick={() => handleEditTask(task)}>
+                                                            Edit
+                                                        </Button>
+                                                        <Button size="xs" color="red" variant="light" onClick={() => handleDeleteTask(task.id)}>
+                                                            Delete
+                                                        </Button>
+                                                    </Group>
                                                 </Card>
                                             )}
-                                        </Draggable>)
+                                        </Draggable>
                                     ))}
                                     {provided.placeholder}
                                 </div>
@@ -195,7 +179,47 @@ const DragDrop = () => {
                     ))}
                 </div>
             </DragDropContext>
+
+            {/* Modals */}
+            <Modal opened={createOpened} onClose={closeCreate} title="Create New Task">
+                <fetcher.Form method="POST">
+                    <Input type="hidden" name="type" value="create_task" />
+                    <Input type="hidden" name="task_list_id" value={taskList?.id} />
+                    <TextInput label="Title" name="title" error={titleError} />
+                    <Textarea label="Description" name="description" error={descriptionError} />
+                    <Group justify="flex-end" mt="lg">
+                        <Button type="submit" loading={isSubmitting} >Create</Button>
+                        <Button variant="outline" onClick={closeCreate}>Cancel</Button>
+                    </Group>
+                </fetcher.Form>
+            </Modal>
+
+            <Modal opened={editOpened} onClose={closeEdit} title="Edit Task">
+                <fetcher.Form method="PUT">
+                    <Input type="hidden" name="type" value="edit_task" />
+                    <Input type="hidden" name="taskId" value={selectedTask?.id} />
+                    <TextInput label="Title" name="title" defaultValue={selectedTask?.title} error={titleError} />
+                    <Textarea label="Description" name="description" defaultValue={selectedTask?.description} error={descriptionError} />
+                    <Group justify="flex-end" mt="lg">
+                        <Button type="submit" loading={isSubmitting}>Update</Button>
+                        <Button variant="outline" onClick={closeEdit}>Cancel</Button>
+                    </Group>
+                </fetcher.Form>
+            </Modal>
+
+            <Modal opened={deleteOpened} onClose={closeDelete} title="Confirm Delete">
+                <Text>Are you sure you want to delete this task? This action cannot be undone.</Text>
+                <fetcher.Form method="DELETE">
+                    <Input type="hidden" name="type" value="delete_task" />
+                    <Input type="hidden" name="taskId" value={deleteId} />
+                    <Group justify="flex-end" mt="lg">
+                        <Button color="red" type="submit" loading={isSubmitting}>Delete</Button>
+                        <Button variant="outline" onClick={closeDelete}>Cancel</Button>
+                    </Group>
+                </fetcher.Form>
+            </Modal>
         </>
-    )
-}
+    );
+};
+
 export default DragDrop;

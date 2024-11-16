@@ -46,7 +46,7 @@ export default function WorkSpace() {
     const isSubmitting = fetcher.state == 'submitting'
     const titleError = response?.errors?.title || null;
     const descriptionError = response?.errors?.description || null;
-    
+
     useEffect(() => {
         if (response?.data) {
             if (opened) close();
@@ -75,8 +75,10 @@ export default function WorkSpace() {
     };
     return (
         <>
-            <Title order={2} mb="md">YOUR WORKSPACES</Title>
-            <Button onClick={open}>Add new TaskList</Button>
+            <Group justify='space-between' align='center'>
+                <Title order={2} mb="md">YOUR WORKSPACES</Title>
+                <Button onClick={open}>Add new TaskList</Button>
+            </Group>
 
             <Space h="md" />
             <Grid gutter={{ base: 5, xs: 'md', md: 'xl', xl: 50 }}>

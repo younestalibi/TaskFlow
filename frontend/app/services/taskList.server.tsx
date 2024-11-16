@@ -40,6 +40,7 @@ export async function createTaskList({ request, title, description }) {
         return { errors: { message: "Something went wrong try again later!" }, data: null }
     }
 }
+
 export async function updateTaskList({ request, taskListId, title, description }) {
     const token = await currentToken({ request });
     try {
@@ -61,6 +62,7 @@ export async function updateTaskList({ request, taskListId, title, description }
         return { errors: { message: "Something went wrong try again later!" }, data: null }
     }
 }
+
 export async function deleteTaskList({ request, taskListId }) {
     const token = await currentToken({ request });
     try {
@@ -77,6 +79,7 @@ export async function deleteTaskList({ request, taskListId }) {
         return { errors: { message: "Something went wrong try again later!", data: null } }
     }
 }
+
 export async function getTaskListById({ request, taskListId}) {
     const token = await currentToken({ request });
     console.log(taskListId)
