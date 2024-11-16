@@ -80,9 +80,8 @@ export async function deleteTaskList({ request, taskListId }) {
     }
 }
 
-export async function getTaskListById({ request, taskListId}) {
+export async function getTaskListById({ request, taskListId }) {
     const token = await currentToken({ request });
-    console.log(taskListId)
     try {
         const response = await client.get(
             `/tasklists/${taskListId}`,
@@ -92,14 +91,74 @@ export async function getTaskListById({ request, taskListId}) {
                 },
             }
         );
-        console.log(response)
         return { errors: {}, data: response }
     } catch (err) {
         const { error, status } = err
-        console.log(error)
         if (status == 404) {
             return { errors: error, data: null }
         }
         return { errors: { message: "Something went wrong try again later!" }, data: null }
+    }
+}
+
+export async function getAutoComplete({ request, query }) {
+    const token = await currentToken({ request });
+    try {
+        const response = await client.get(
+            `/autocomplete?query=${query}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        return { errors: {}, data: response }
+    } catch (err) {
+        return { errors: { message: "Something went wrong try again later!" }, data: null }
+    }
+}
+
+export async function shareTaskList({ request, taskListId, users }) {
+    const token = await currentToken({ request });
+    try {
+        console.log(users)
+        const response = await client.post(
+            `/tasklists/${taskListId}/share`,
+            {
+                users: JSON.parse(users)
+            }
+            ,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+
+                },
+            }
+        );
+        return { errors: {}, data: response }
+    } catch (err) {
+        const { error, status } = err
+        if (status == 422 && error instanceof ErrorValidation) {
+            return { errors: error.getErrors(), data: null }
+        }
+        return { errors: { message: "Something went wrong try again later!" }, data: null }
+    }
+}
+
+export async function getSharedTaskLists({ request }) {
+    const token = await currentToken({ request });
+    try {
+        const response = await client.get(
+            "/tasklists/shared/get",
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        return response;
+    } catch (err) {
+        return { errors: { message: "Something went wrong try again later!" } }
     }
 }

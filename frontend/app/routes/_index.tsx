@@ -1,5 +1,10 @@
 import { useLoaderData } from "@remix-run/react";
 import { Navbar } from "~/components/HeaderNavbar";
+import { Faq } from "~/components/home/Faq";
+import { Features } from "~/components/home/Features";
+import { Footer } from "~/components/home/Footer";
+import { HeaderMegaMenu } from "~/components/home/Header";
+import Hero from "~/components/home/Hero";
 import { getUser } from "~/services/auth.server";
 
 export async function loader({ request }) {
@@ -10,8 +15,13 @@ export default function Index() {
   const user = useLoaderData();
   return (
     <>
+      <div>
       <Navbar user={user} />
-      <div>Welcome page</div>
+        <Hero />
+        <Features />
+        <Faq />
+        <Footer />
+      </div>;
     </>
   );
 }

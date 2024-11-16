@@ -19,7 +19,7 @@ export function Navbar({ user }) {
     const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
 
     return (
-        <Box pb={100} pt={10}>
+        <Box pb={30} pt={10}>
             <header className={classes.header}>
                 <Group justify="space-between" h="100%">
                     <AppLogo width={150} />

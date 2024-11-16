@@ -1,11 +1,11 @@
-import { Button, Divider, Grid, Group, Space, Title } from '@mantine/core';
+import { Divider, Grid, Loader, Space, Text, Title } from '@mantine/core';
 import { useLoaderData } from '@remix-run/react';
-import TaskListCard from '~/components/TaskListCard/TaskListCard';
-import { getTaskLists } from '~/services/taskList.server';
+import TaskListCard from '~/components/TaskListCard';
+import { getSharedTaskLists } from '~/services/taskList.server';
 
 
 export const loader = async ({ request }) => {
-    const response = await getTaskLists({ request });
+    const response = await getSharedTaskLists({ request });
     return response;
 };
 
@@ -14,17 +14,10 @@ export default function TaskManger() {
 
     return (
         <>
-        
-            <Title order={2} mb="md">YOUR WORKSPACES</Title>
-            <Space h="md" />
-            <Grid gutter={{ base: 5, xs: 'md', md: 'xl', xl: 50 }}>
-                
 
-            </Grid>
-            <Space h="xl" />
-            <Divider my="lg" />
-            <Space h="xl" />
-            <Title order={2} mb="md">SHARED WITH YOU</Title>
+            <Title order={2} mb="md">TASK-LISTS SHARED WITH YOU</Title>
+            <Space h="md" />
+
             <Space h="md" />
             <Grid gutter={{ base: 5, xs: 'md', md: 'xl', xl: 50 }}>
                 {taskLists?.length ?
@@ -34,12 +27,14 @@ export default function TaskManger() {
                         </Grid.Col>
                     ))
                     :
-                    <b>not found</b>
+                     <Grid.Col span={12}>
+                        <Text size="lg" c="dimmed">
+                            No task lists shared with you yet.
+                        </Text>
+                    </Grid.Col>
                 }
             </Grid>
             <Space h="xl" />
-
-
         </>
     );
 }
