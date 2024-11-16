@@ -42,15 +42,11 @@ export default function WorkSpace() {
     const [deleteId, setDeleteId] = useState(0)
     const [selectedTaskList, setSelectedTaskList] = useState(null)
 
-
-
     const response = fetcher.data
-    console.log(response)
     const isSubmitting = fetcher.state == 'submitting'
-
     const titleError = response?.errors?.title || null;
     const descriptionError = response?.errors?.description || null;
-
+    
     useEffect(() => {
         if (response?.data) {
             if (opened) close();

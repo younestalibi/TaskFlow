@@ -77,3 +77,26 @@ export async function deleteTaskList({ request, taskListId }) {
         return { errors: { message: "Something went wrong try again later!", data: null } }
     }
 }
+export async function getTaskListById({ request, taskListId}) {
+    const token = await currentToken({ request });
+    console.log(taskListId)
+    try {
+        const response = await client.get(
+            `/tasklists/${taskListId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        console.log(response)
+        return { errors: {}, data: response }
+    } catch (err) {
+        const { error, status } = err
+        console.log(error)
+        if (status == 404) {
+            return { errors: error, data: null }
+        }
+        return { errors: { message: "Something went wrong try again later!" }, data: null }
+    }
+}

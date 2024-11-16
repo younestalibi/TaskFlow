@@ -11,6 +11,7 @@ const client = Axios.create({
 
 client.interceptors.response.use(
     (response: AxiosResponse) => {
+        console.log(response?.data)
         return response?.data
     },
     (error: AxiosError) => {
@@ -43,8 +44,11 @@ client.interceptors.response.use(
                     status: 400,
                     error: response?.data?.error || "something is wrong!"
                 })
-            // case 404:
-            //     return Promise.reject("Page not found");
+            case 404:
+                return Promise.reject({
+                    status: 400,
+                    error: response?.data?.error || "Not Found"
+                })
             // case 500:
             //     return Promise.reject("Server error, please try again later");
             default:
