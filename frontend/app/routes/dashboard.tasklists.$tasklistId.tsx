@@ -1,7 +1,7 @@
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { useEffect, useState } from "react";
 import { Badge, Button, Card, Group, Input, Modal, Space, Text, Textarea, TextInput, Title } from "@mantine/core";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
 import { getTaskListById } from "~/services/taskList.server";
 import { createTask, deleteTaskById, updateTaskById, updateTaskStatus } from "~/services/task.server";
 import { useDisclosure } from "@mantine/hooks";
@@ -59,6 +59,9 @@ const DragDrop = () => {
     const descriptionError = fetcher?.data?.errors?.description || null;
 
     const taskList = response?.data;
+    const { user } = useOutletContext();
+    const isOwner = user?.id === taskList?.user_id;
+    // const 
 
     // Load tasks into appropriate columns
     useEffect(() => {
@@ -143,34 +146,49 @@ const DragDrop = () => {
                                     <Space h="sm" />
 
                                     {tasks[column]?.map((task, index) => (
-                                        <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
-                                            {(provided) => (
-                                                <Card
-                                                    ref={provided.innerRef}
-                                                    {...provided.draggableProps}
-                                                    {...provided.dragHandleProps}
-                                                    className="mb-4"
-                                                    shadow="sm"
-                                                    padding="lg"
-                                                    radius="md"
-                                                    withBorder
-                                                >
-                                                    <Group justify="space-between" mb="xs">
-                                                        <Text fw={500}>{task.title}</Text>
-                                                        <Badge color="blue">Priority</Badge>
-                                                    </Group>
-                                                    <Text size="sm" color="dimmed">{task.description}</Text>
-                                                    <Group mt="md">
-                                                        <Button size="xs" variant="light" onClick={() => handleEditTask(task)}>
-                                                            Edit
-                                                        </Button>
-                                                        <Button size="xs" color="red" variant="light" onClick={() => handleDeleteTask(task.id)}>
-                                                            Delete
-                                                        </Button>
-                                                    </Group>
-                                                </Card>
-                                            )}
-                                        </Draggable>
+                                        isOwner ?
+                                            <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
+                                                {(provided) => (
+                                                    <Card
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        className="mb-4"
+                                                        shadow="sm"
+                                                        padding="lg"
+                                                        radius="md"
+                                                        withBorder
+                                                    >
+                                                        <Group justify="space-between" mb="xs">
+                                                            <Text fw={500}>{task.title}</Text>
+                                                            <Badge color="blue">Priority</Badge>
+                                                        </Group>
+                                                        <Text size="sm" color="dimmed">{task.description}</Text>
+                                                        <Group mt="md">
+                                                            <Button size="xs" variant="light" onClick={() => handleEditTask(task)}>
+                                                                Edit
+                                                            </Button>
+                                                            <Button size="xs" color="red" variant="light" onClick={() => handleDeleteTask(task.id)}>
+                                                                Delete
+                                                            </Button>
+                                                        </Group>
+                                                    </Card>
+                                                )}
+                                            </Draggable> :
+                                            <Card
+                                                key={task.id}
+                                                className="mb-4"
+                                                shadow="sm"
+                                                padding="lg"
+                                                radius="md"
+                                                withBorder
+                                            >
+                                                <Group justify="space-between" mb="xs">
+                                                    <Text fw={500}>{task.title}</Text>
+                                                    <Badge color="blue">Priority</Badge>
+                                                </Group>
+                                                <Text size="sm" color="dimmed">{task.description}</Text>
+                                            </Card>
                                     ))}
                                     {provided.placeholder}
                                 </div>

@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\TaskList;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class TaskListController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
         $user = JWTAuth::parseToken()->authenticate();
@@ -18,9 +18,6 @@ class TaskListController extends Controller
         return response()->json($taskLists);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -37,21 +34,15 @@ class TaskListController extends Controller
         return response()->json($taskList, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
-        $taskList = TaskList::with('tasks')->find($id);
+        $taskList = TaskList::with(['tasks', 'sharedUsers'])->find($id);
         if (!$taskList) {
             return response()->json(['error' => 'Task list not found'], 404);
         }
         return response()->json($taskList);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request,  $id)
     {
         $request->validate([
@@ -67,13 +58,43 @@ class TaskListController extends Controller
         return response()->json($taskList);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         $taskList = TaskList::findOrFail($id);
         $taskList->delete();
         return response()->json(['message' => 'Task list deleted successfully']);
+    }
+
+    public function autocomplete(Request $request)
+    {
+        $data = User::select("name", 'id', 'email')
+            ->where('name', 'LIKE', '%' . $request->get('query') . '%')
+            ->get();
+        return response()->json($data);
+    }
+
+    public function shareTaskList(Request $request, $taskListId)
+    {
+        $validator = $request->validate([
+            'users' => 'required|array',
+            'users.*.id' => 'required|integer|exists:users,id',
+            'users.*.permission' => 'required|string|in:view,edit',
+        ]);
+
+        $taskList = TaskList::find($taskListId);
+
+        if (!$taskList) {
+            return response()->json(["error" => "Task list not found"], 404);
+        }
+
+        $taskList->shareWithUsers($validator['users']);
+        return response()->json(["message" => "success"]);
+    }
+
+    public function getSharedTaskList()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $sharedTaskLists = $user->sharedTaskLists;
+        return response()->json($sharedTaskLists);
     }
 }

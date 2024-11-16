@@ -20,14 +20,21 @@ class TaskList extends Model
     public function sharedUsers()
     {
         return $this->belongsToMany(User::class)
-            ->withPivot('permission') 
+            ->withPivot('permission')
             ->withTimestamps();
+    }
+
+    public function shareWithUsers(array $userPermissions)
+    {
+        $formattedPermissions = [];
+        foreach ($userPermissions as $user) {
+            $formattedPermissions[$user['id']] = ['permission' => $user['permission']];
+        }
+        $this->sharedUsers()->sync($formattedPermissions);
     }
 
     public function tasks()
     {
         return $this->hasMany(Task::class);
     }
-
-    
 }

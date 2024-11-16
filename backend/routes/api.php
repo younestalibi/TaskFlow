@@ -21,10 +21,12 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::delete('profile/delete', [ProfileController::class, 'deleteAccount']);
     // TaskList-related routes
     Route::resource('tasklists', TaskListController::class);
+    Route::get('autocomplete', [TaskListController::class, 'autocomplete']);
+    Route::post('tasklists/{taskListId}/share', [TaskListController::class, 'shareTaskList']);
+    Route::get('tasklists/shared/get', [TaskListController::class, 'getSharedTaskList']);
+
     Route::resource('tasks', TaskController::class);
-    Route::put('tasks/{task}/update-status',[TaskController::class,'updateStatus']);
-
-
+    Route::put('tasks/{task}/update-status', [TaskController::class, 'updateStatus']);
 });
 
 

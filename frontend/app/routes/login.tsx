@@ -71,14 +71,14 @@ export default function LoginPage() {
                         <PasswordInput
                             error={passwordError}
                             name="password" label="Password" placeholder="Your password" mt="md" />
-                        <Group justify="space-between" mt="lg">
+                        {/* <Group justify="space-between" mt="lg">
                             <Checkbox label="Remember me" />
                             <Link to={'/forgotpassword'}>
                                 <Anchor component="button" size="sm">
                                     Forgot password?
                                 </Anchor>
                             </Link>
-                        </Group>
+                        </Group> */}
                         <Button loading={isSubmitting} type="submit" fullWidth mt="xl">
                             Sign in
                         </Button>

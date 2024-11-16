@@ -1,5 +1,5 @@
-import { Link, Outlet, useLoaderData } from "@remix-run/react";
-import { getUser, requireAuth } from "~/services/auth.server";
+import { Form, Link, Outlet, useLoaderData } from "@remix-run/react";
+import { getUser, logout, requireAuth } from "~/services/auth.server";
 import { useDisclosure } from '@mantine/hooks';
 import { ActionIcon, AppShell, Box, Button, Container, Group } from '@mantine/core';
 import { AppLogo } from "~/components/AppLogo";
@@ -12,6 +12,11 @@ export const loader = async ({ request }) => {
     const user = await getUser({ request })
     return user
 };
+export const action = async ({ request }) => {
+    await logout({ request });
+    return null
+};
+
 
 export default function Dashboard() {
     const user = useLoaderData();
@@ -32,9 +37,14 @@ export default function Dashboard() {
                         {user ? (
                             <>
                                 <Group visibleFrom="sm">
-                                    Welcome <b className=" text-sm text-gray-700">
+                                    <b className=" text-sm text-gray-700">
                                         {user.name}
                                     </b>
+                                    <Form method="POST">
+                                        <Button type="submit">
+                                            Logout
+                                        </Button>
+                                    </Form>
                                 </Group>
                             </>
                         ) : (
@@ -61,9 +71,12 @@ export default function Dashboard() {
                         onClick={toggle}
                         styles={{
                             root: {
+                                width: "50px",
+                                height: "50px",
+                                borderRadius: '50%',
                                 position: 'absolute',
                                 top: '50%',
-                                right: '-15px'
+                                right: '-25px'
                             }
                         }}
                     >
@@ -73,7 +86,9 @@ export default function Dashboard() {
                             <IconCaretLeft style={{ width: '70%', height: '70%' }} stroke={1.5} />
                         )}
                     </ActionIcon>
+
                     <PortalNavbar />
+
 
                 </Box>
             </AppShell.Navbar>

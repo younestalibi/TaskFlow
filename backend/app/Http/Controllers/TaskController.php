@@ -25,7 +25,7 @@ class TaskController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
             'task_list_id' => 'required|exists:task_lists,id',
         ]);
 
@@ -41,10 +41,10 @@ class TaskController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Task $task)
-    {
-        return response()->json($task);
-    }
+    // public function show(Task $task)
+    // {
+    //     return response()->json($task);
+    // }
 
 
     /**
@@ -54,14 +54,12 @@ class TaskController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|in:todo,doing,done',
+            'description' => 'required|string',
         ]);
 
         $task->update([
             'title' => $request->title,
             'description' => $request->description,
-            'status' => $request->status,
         ]);
 
         return response()->json($task);

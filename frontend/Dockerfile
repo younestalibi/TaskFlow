@@ -14,10 +14,10 @@ RUN npm cache clean --force && npm install
 COPY . .
 
 # Build the Remix app for production
-# RUN npm run build
+RUN npm run build
 
-# Expose port 3000 for Remix
+# Expose port 3000 for the Remix app
 EXPOSE 3000
 
-# Start the Remix app in development mode (or use production based on your needs)
-CMD ["npm", "run", "dev"]
+# Start the Remix app in production mode
+CMD ["npm", "run", "start"]
