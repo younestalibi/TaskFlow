@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('status', ['incomplete', 'completed'])->default('incomplete');
+            $table->enum('status', ['todo', 'doing','done'])->default('todo');
             $table->foreignId('task_list_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

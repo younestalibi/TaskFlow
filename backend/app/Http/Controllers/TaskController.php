@@ -11,12 +11,12 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $user = JWTAuth::parseToken()->authenticate();
-        $taskLists = $user->taskLists()->with('tasks')->get(); 
-        return response()->json($taskLists);
-    }
+    // public function index()
+    // {
+    //     $user = JWTAuth::parseToken()->authenticate();
+    //     $taskLists = $user->taskLists()->with('tasks')->get(); 
+    //     return response()->json($taskLists);
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -26,7 +26,7 @@ class TaskController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'task_list_id' => 'required|exists:task_lists,id', 
+            'task_list_id' => 'required|exists:task_lists,id',
         ]);
 
         $task = Task::create([
@@ -43,7 +43,7 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        return response()->json($task); 
+        return response()->json($task);
     }
 
 
@@ -55,7 +55,7 @@ class TaskController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'required|in:incomplete,completed',
+            'status' => 'required|in:todo,doing,done',
         ]);
 
         $task->update([
@@ -64,7 +64,19 @@ class TaskController extends Controller
             'status' => $request->status,
         ]);
 
-        return response()->json($task); 
+        return response()->json($task);
+    }
+    public function updateStatus(Request $request, Task $task)
+    {
+        $request->validate([
+            'status' => 'required|in:todo,doing,done',
+        ]);
+
+        $task->update([
+            'status' => $request->status,
+        ]);
+
+        return response()->json($task);
     }
 
     /**

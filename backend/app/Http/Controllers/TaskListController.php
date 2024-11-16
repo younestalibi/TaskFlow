@@ -25,7 +25,7 @@ class TaskListController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
         ]);
         $user = JWTAuth::parseToken()->authenticate();
         $taskList = TaskList::create([
@@ -42,7 +42,10 @@ class TaskListController extends Controller
      */
     public function show($id)
     {
-        $taskList = TaskList::findOrFail($id);
+        $taskList = TaskList::with('tasks')->find($id);
+        if (!$taskList) {
+            return response()->json(['error' => 'Task list not found'], 404);
+        }
         return response()->json($taskList);
     }
 
@@ -53,7 +56,7 @@ class TaskListController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
         ]);
         $taskList = TaskList::findOrFail($id);
         $taskList->update([

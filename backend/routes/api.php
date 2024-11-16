@@ -22,6 +22,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     // TaskList-related routes
     Route::resource('tasklists', TaskListController::class);
     Route::resource('tasks', TaskController::class);
+    Route::put('tasks/{task}/update-status',[TaskController::class,'updateStatus']);
 
 
 });
