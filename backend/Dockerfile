@@ -41,8 +41,12 @@ RUN composer install --no-dev --optimize-autoloader
 # Set proper permissions for Laravel's storage and cache directories
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Run Laravel artisan commands (e.g., migrate and jwt:secret)
+RUN php artisan key:generate --force && \
+    php artisan jwt:secret --force
+
 # Expose Apache port (80)
-EXPOSE 80
+EXPOSE 8000
 
 # Command to run Apache in the foreground (default entry point for Apache)
 CMD ["apache2-foreground"]
