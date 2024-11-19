@@ -1,0 +1,37 @@
+# Use the official PHP image as the base image
+FROM php:8.2-apache
+
+# Install required extensions
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    zip \
+    git \
+    libpq-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_pgsql
+
+# Set the working directory inside the container
+WORKDIR /var/www/html
+
+# Copy the existing application directory contents into the container
+COPY ./backend /var/www/html
+
+# Install Composer (PHP package manager)
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# COPY --from=composer:2.4.1 /usr/bin/composer /usr/local/bin/composer
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Run Artisan commands to generate the app key and JWT secret
+
+# RUN php artisan key:generate && \
+#     php artisan jwt:secret
+
+# Expose the port Laravel will be running on
+EXPOSE 8000
+
+# Run the Laravel application
+CMD php artisan serve --host=0.0.0.0 --port=8000

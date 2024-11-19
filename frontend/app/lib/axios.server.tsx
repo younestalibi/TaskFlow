@@ -2,7 +2,7 @@ import Axios, { AxiosError, AxiosResponse } from 'axios';
 import ErrorValidation from './custom-error';
 
 const client = Axios.create({
-    baseURL: "http://localhost:8000/api",
+    baseURL: import.meta.env.VITE_BASE_URL,
     headers: {
         'X-Requested-With': 'XMLHttpRequest',
         "Content-Type": "application/json"
@@ -17,8 +17,13 @@ client.interceptors.response.use(
     (error: AxiosError) => {
         const { response } = error;
         console.log('==============')
+        console.log('press'+process.env.BASE_URL)
+        console.log('press'+ import.meta.env.VITE_BASE_URL)
         console.log(response?.data)
+        console.log(response?.status)
+        console.log(response?.data?.error)
         console.log('==============')
+        console.log(process.env.BASE_URL)
 
         if (!response) {
             console.error("Network error or server unreachable");

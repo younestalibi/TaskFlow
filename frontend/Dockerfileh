@@ -1,0 +1,19 @@
+# Use Node.js 21 image as base
+FROM node:21
+
+# Set the working directory for the app
+WORKDIR /app/frontend
+
+COPY package*.json ./
+
+# RUN  npm install
+
+
+# Copy the rest of the application
+RUN npm cache clean --force && npm install
+COPY . .
+# Expose port 3000 for the Remix app
+EXPOSE 3000
+
+# Start the Remix app in production mode
+CMD ["npm", "run", "dev"]

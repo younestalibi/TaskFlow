@@ -1,0 +1,24 @@
+# Use the official Node.js image as the base image
+FROM node:21
+
+# Set the working directory inside the container
+WORKDIR /usr/src/app
+
+# Copy package.json and package-lock.json (if they exist)
+COPY ./frontend/package*.json .
+
+# Install Remix dependencies
+RUN npm cache clean --force && npm install
+
+# Copy the rest of the frontend application
+COPY ./frontend .
+COPY ./frontend/.env.example .env
+
+# Build the Remix app
+RUN npm run build
+
+# Expose the port Remix will be running on
+EXPOSE 3000
+
+# Start the Remix app
+CMD ["npm", "run", "start"]

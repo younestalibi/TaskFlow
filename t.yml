@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  # Backend (Laravel)
+  backend:
+    # container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000 # Expose Laravel server on port 8000
+    volumes:
+      - ./backend:/app/backend # Mount your Laravel project folder
+    depends_on:
+      - database
+    networks:
+      - app
+
+  # Frontend (Remix)
+  frontend:
+    # container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - "3000:3000" # Maps container's port 3000 to host's port 3000
+    volumes:
+      - ./frontend:/app/frontend # Syncs the current directory with the container's work directory
+    depends_on:
+      - backend
+    networks:
+      - app
+
+  # PostgreSQL Database
+  database:
+    image: postgres:15
+    # container_name: database
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data # Persist database data
+    ports:
+      - "5432:5432" # Expose PostgreSQL on port 5432
+    networks:
+      - app
+
+volumes:
+  pgdata:
+
+networks:
+  app:
+    driver: bridge
