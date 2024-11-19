@@ -35,6 +35,10 @@ cd frontend
 npm install
 npm run dev
 
+# Set environment variables
+cp .env.example .env
+uncomment VITE_BASE_URL=http://localhost:8000/api if you are not using docker
+
 cd backend
 # Install PHP dependencies
 composer install
@@ -58,18 +62,18 @@ git clone https://github.com/younestalibi/TaskFlow.git
 # Navigate into the project directory
 cd TaskFlow
 
-# Copy the environment file
-cp .env.example .env
-
 # Build and start the Docker containers
 docker-compose up --build 
+
+# Generate APP KEY inside the Laravel container
+docker exec -it backend php artisan key:generate
+
+# Generate JWT secret inside the Laravel container
+docker exec -it backend php artisan jwt:secret
 
 # Run migrations inside the Laravel container
 docker exec -it backend php artisan migrate
 
-
-# Generate JWT secret inside the Laravel container
-docker exec -it taskflow-laravel php artisan jwt:secret
 </pre>
 
 > **Note:** Ensure Docker and Docker Compose are installed on your machine before proceeding. Containers for the Laravel backend, database, and Node.js will be set up automatically.

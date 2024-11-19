@@ -13,7 +13,7 @@ export default function TaskListCard({ taskList, onDelete, onEdit, onSahre }) {
             <Group justify="space-between">
                 <Text fw={500} size="lg">{taskList?.title}</Text>
                 <Group>
-                    {canEdit &&
+                    {(canEdit || !isShared) &&
                         <ActionIcon color="blue" onClick={() => { onEdit(taskList) }} className='hover:cursor-pointer'>
                             <IconPencil size={16} />
                         </ActionIcon>

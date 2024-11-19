@@ -14,7 +14,6 @@ export default function Index() {
   const user = useLoaderData();
   return (
     <>
-    <div>last time </div>
       <Navbar user={user} />
       <Hero />
       <Features />
