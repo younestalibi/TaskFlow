@@ -30,7 +30,7 @@ git clone https://github.com/younestalibi/TaskFlow.git
 # Navigate into the project directory
 cd TaskFlow
 
-# Install Node.js dependencies
+# Install Node.js dependencies (node:21)
 cd frontend
 npm install
 npm run dev
@@ -40,7 +40,7 @@ cp .env.example .env
 uncomment VITE_BASE_URL=http://localhost:8000/api if you are not using docker
 
 cd backend
-# Install PHP dependencies
+# Install PHP dependencies (PHP:8.2)
 composer install
 
 # Set environment variables
