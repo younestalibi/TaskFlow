@@ -82,37 +82,19 @@ docker exec -it backend php artisan migrate
 
 ## Backend Routes
 
-<table>
-  <thead>
-    <tr>
-      <th>Method</th>
-      <th>Endpoint</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>POST</td>
-      <td>/register</td>
-      <td>User registration</td>
-    </tr>
-    <tr>
-      <td>POST</td>
-      <td>/login</td>
-      <td>User login</td>
-    </tr>
-    <tr>
-      <td>GET</td>
-      <td>/me</td>
-      <td>Retrieve user details</td>
-    </tr>
-    <tr>
-      <td>POST</td>
-      <td>/logout</td>
-      <td>User logout</td>
-    </tr>
-  </tbody>
-</table>
+---
+
+<div style="border-left: 4px solid #0056b3; padding-left: 15px; margin: 20px 0;">
+  <h3>Authentication Endpoints</h3>
+  <ul>
+    <li><code>POST /logout</code>: User logout</li>
+    <li><code>GET /me</code>: Retrieve user details</li>
+    <li><code>POST /login</code>: User login</li>
+    <li><code>PUT /profile/update</code>: update user information</li>
+    <li><code>PUT /profile/update-password</code>: update user's password</li>
+    <li><code>DELETE /profile/delete</code>: Delete user account</li>
+  </ul>
+</div>
 
 ---
 
@@ -125,6 +107,19 @@ docker exec -it backend php artisan migrate
     <li><code>DELETE /tasklists/{id}</code>: Delete a task list</li>
     <li><code>POST /tasklists/{id}/share</code>: Share a task list</li>
     <li><code>GET /tasklists/shared/get</code>: Fetch shared task lists</li>
+  </ul>
+</div>
+
+---
+
+<div style="border-left: 4px solid #0056b3; padding-left: 15px; margin: 20px 0;">
+  <h3>Task Endpoints</h3>
+  <ul>
+    <li><code>POST /tasks</code>: Create a new task</li>
+    <li><code>PUT /tasks/{id}</code>: Update a task</li>
+    <li><code>PUT /tasks/{task}/update-status</code>: Update a task status</li>
+    <li><code>DELETE /tasks/{id}</code>: Delete a task</li>
+   
   </ul>
 </div>
 
